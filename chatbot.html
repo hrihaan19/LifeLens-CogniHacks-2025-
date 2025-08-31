@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Career Chatbot – LifeLens</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo" style="text-decoration:none; color:inherit; cursor:pointer;">
+        <div class="logo-icon">
+          <i class="fas fa-eye"></i>
+        </div>
+        <span class="logo-text">LifeLens</span>
+      </a>
+      <div class="nav-menu">
+        <a href="index.html#home" class="nav-link">Home</a>
+        <a href="index.html#features" class="nav-link">Features</a>
+        <a href="index.html#about" class="nav-link">About</a>
+        <a href="index.html#contact" class="nav-link">Contact</a>
+        <a href="chatbot.html" class="nav-link active">Career Chatbot</a>
+      </div>
+  <!-- Login and Sign Up buttons removed -->
+    </div>
+  </nav>
+  <section class="chat-section" id="chatbot">
+    <div class="container">
+      <div class="section-header">
+        <h2>💬 Career Chatbot</h2>
+        <p>Chat with LifeLens AI for instant answers, advice, or just to explore your future!</p>
+      </div>
+      <div class="chatbot-container">
+        <div id="chat-messages" class="chat-messages">
+          <div class="chat-message ai">
+            <div class="bubble">
+              Hello! I’m your LifeLens AI. Ask me anything about your future, careers, or life planning!
+            </div>
+          </div>
+        </div>
+        <form id="chat-form" class="chat-form">
+          <input type="text" id="chat-input" placeholder="Type your question..." required />
+          <button type="submit" class="btn-primary">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+  <script src="script.js"></script>
+    <script>
+      // Chatbot persistence logic
+      document.addEventListener('DOMContentLoaded', function () {
+        const chatForm = document.getElementById('chat-form');
+        const chatInput = document.getElementById('chat-input');
+        const chatMessages = document.getElementById('chat-messages');
+        const STORAGE_KEY = 'lifelens_chat_history';
+
+        // Load chat history from localStorage
+        function loadChatHistory() {
+          chatMessages.innerHTML = '';
+          let history = [];
+          try {
+            history = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+          } catch {}
+          if (history.length === 0) {
+            // Default welcome message
+            history = [{role: 'ai', text: "Hello! I’m your LifeLens AI. Ask me anything about your future, careers, or life planning!"}];
+          }
+          for (const msg of history) {
+            const div = document.createElement('div');
+            div.className = 'chat-message ' + (msg.role === 'user' ? 'user' : 'ai');
+            div.innerHTML = `<div class="bubble">${msg.text}</div>`;
+            chatMessages.appendChild(div);
+          }
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Save chat history to localStorage
+        function saveChatHistory() {
+          const bubbles = chatMessages.querySelectorAll('.chat-message');
+          const history = Array.from(bubbles).map(div => {
+            return {
+              role: div.classList.contains('user') ? 'user' : 'ai',
+              text: div.querySelector('.bubble').innerHTML
+            };
+          });
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+        }
+
+        async function sendChatMessage(message) {
+          // Display user message
+          const userMsgDiv = document.createElement('div');
+          userMsgDiv.className = 'chat-message user';
+          userMsgDiv.innerHTML = `<div class="bubble">${message}</div>`;
+          chatMessages.appendChild(userMsgDiv);
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+          saveChatHistory();
+
+          // Show loading for AI
+          const aiMsgDiv = document.createElement('div');
+          aiMsgDiv.className = 'chat-message ai';
+          aiMsgDiv.innerHTML = '<div class="bubble">Thinking...</div>';
+          chatMessages.appendChild(aiMsgDiv);
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+          saveChatHistory();
+
+          try {
+            const res = await fetch('http://127.0.0.1:8000/api/lifelens', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                grade: '',
+                interests: '',
+                subjects: '',
+                career_ideas: '',
+                hobbies: '',
+                habits: message,
+                future_years: 5,
+                alternate_goal: ''
+              })
+            });
+            const json = await res.json();
+            aiMsgDiv.innerHTML = `<div class="bubble">${json.result}</div>`;
+          } catch (err) {
+            aiMsgDiv.innerHTML = '<div class="bubble">Error: Could not connect to backend.</div>';
+          }
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+          saveChatHistory();
+        }
+
+        if (chatForm) {
+          chatForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const message = chatInput.value.trim();
+            if (message) {
+              sendChatMessage(message);
+              chatInput.value = '';
+            }
+          });
+        }
+
+        loadChatHistory();
+      });
+    </script>
+</body>
+</html>
