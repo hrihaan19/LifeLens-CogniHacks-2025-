@@ -1,37 +1,16 @@
-# LifeLens Backend (FastAPI)
+# About the Project
 
-This is the backend API for LifeLens, an AI-powered future planner for students and youth.
+## Inspiration
 
-## Features
-- Receives user input (grade, interests, subjects, career ideas, hobbies, habits, future years, alternate goal)
-- Calls OpenAI API with a system prompt to generate a vivid, actionable "day-in-the-life" story and roadmap
-- Returns the AI-generated narrative and suggestions
+LifeLens was inspired by the challenge many students and young people face when trying to plan their futures. We saw a need for a supportive, judgment-free space where anyone could explore their interests, ask questions, and get career advice—instantly and anonymously. The idea was to make career counseling as easy as chatting with a friend, powered by AI.
 
-## Setup
-1. Create a `.env` file in this directory with:
-   ```
-   OPENAI_API_KEY=your_openai_api_key_here
-   ```
-2. Install dependencies:
-   ```sh
-   /Users/hrihaanbhutani/lifelens2/.venv/bin/pip install fastapi uvicorn openai python-dotenv
-   ```
-3. Run the server:
-   ```sh
-   /Users/hrihaanbhutani/lifelens2/.venv/bin/uvicorn app:app --reload
-   ```
+## How We Built It
 
-## API Endpoint
-- `POST /api/lifelens`
-  - JSON body: `{ grade, interests, subjects, career_ideas, hobbies, habits, future_years, alternate_goal (optional) }`
-  - Returns: `{ result: <AI narrative> }`
-
-## Test
-Run the test with:
-```sh
-/Users/hrihaanbhutani/lifelens2/.venv/bin/python -m pytest test_app.py
-```
+- **Backend:** FastAPI serves as the backbone, handling API requests and integrating with OpenAI’s GPT for the chatbot logic.
+- **Frontend:** Built from scratch with HTML, CSS, and JavaScript, featuring a multi-page layout, modern navigation, and a dedicated chatbot page.
+- **Persistence:** Chat history is stored in the browser for a seamless user experience.
+- **Deployment:** The project is structured for easy local development and future cloud deployment.
 
 ---
 
-For the frontend, connect to this API endpoint to send user data and display the AI's response.
+LifeLens is just getting started, and we’re excited to keep learning and building!
